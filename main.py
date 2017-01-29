@@ -43,12 +43,44 @@ page_footer = """
 
 
 class Index(webapp2.RequestHandler):
+    """
+       Handles requests coming to "/", builds form
+    """
     def get(self):
-        self.response.write('Hello world!')
+        page_header = "<h2>Create an account:</h2>"
+
+        account_form = """
+        <form action="/" method="post">
+        <label>
+            Username:
+            <input type="text" name="username" />
+        </label>
+        <br>
+        <label>
+            Password:
+            <input type="password" name="password" />
+        </label>
+        <br>
+        <label>
+            Verify Password:
+            <input type="password" name="verify_password" />
+        </label>
+        <br>
+        <label>
+            Email (optional):
+            <input type="text" name="email" />
+        </label>
+        """
+        self.response.write(page_header + account_form + page_footer)
 
 class WelcomePage(webapp2.RequestHandler):
+    """
+       Handles requests coming to "/welcome", builds Welcome page
+    """
     def get(self):
-        self.response.write('Welcome!')
+        username = "Jen"   ## temporary!
+        welcome_text = "<h1>Welcome, " + username + "!</h1>"
+        self.response.write(welcome_text)
 
 app = webapp2.WSGIApplication([
     ('/', Index),
