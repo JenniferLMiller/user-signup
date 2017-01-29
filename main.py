@@ -16,31 +16,43 @@
 #
 import webapp2
 import cgi
+import re
+
+username_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
+password_RE = re.compile(r"^.{3,20}$")
+email_RE = re.compile(r"^[\S]+[\S]+.[\S]+$")
 
 # html boilerplate for the top of every page
 page_header = """
-<!DOCTYPE html>
-<html>
-<head>
-    <title>User Signup</title>
-    <style type="text/css">
-        .error {
-            color: red;
-        }
-    </style>
-</head>
-<body>
-    <h1>
-        <a href="/">User Signup</a>
-    </h1>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>User Signup</title>
+        <style type="text/css">
+            .error {
+                color: red;
+                }
+        </style>
+    </head>
+    <body>
+        <h1>
+            <a href="/">User Signup</a>
+        </h1>
 """
 
 # html boilerplate for the bottom of every page
 page_footer = """
-</body>
-</html>
-"""
+    </body>
+    </html>
+    """
+def valid_username(username):
+    return username_RE.match(username)
 
+def valid_password(password):
+    return password_RE.match(password)
+
+def valid_email(email):
+    return email_RE.match(email)
 
 class Index(webapp2.RequestHandler):
     """
@@ -50,7 +62,7 @@ class Index(webapp2.RequestHandler):
         page_header = "<h2>Create an account:</h2>"
 
         account_form = """
-        <form action="/" method="post">
+        <form action="/signup" method="post">
         <label>
             Username:
             <input type="text" name="username" />
@@ -70,8 +82,28 @@ class Index(webapp2.RequestHandler):
             Email (optional):
             <input type="text" name="email" />
         </label>
+        <br>
+        <input type="submit" value="Sign me up!"/>
         """
-        self.response.write(page_header + account_form + page_footer)
+        content = page_header + account_form + page_footer
+        self.response.write(content)
+
+class Signup(webapp2.RequestHandler):
+    """
+       Handles requests coming to "/signup", validates data
+    """
+    def post(self):
+        #"""
+        #   Retrieve data entered, validate and sanitize
+        #"""
+        username_in = self.request.get("username")
+        password_in = self.request.get("password")
+        verify_password_in = self.request.get("verify_password")
+        email_in = self.request.get("email")
+
+        #good_username = valid_username(username_in)
+        #good_password = valid_password(password_in)
+        #good_email = valid_email(email_in)
 
 class WelcomePage(webapp2.RequestHandler):
     """
@@ -84,5 +116,6 @@ class WelcomePage(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
     ('/', Index),
+    ('/signup', Signup),
     ('/welcome', WelcomePage)
 ], debug=True)
