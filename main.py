@@ -51,59 +51,47 @@ def page_html(
     user_in,
     email_in
     ):
-    header = "<h2>Create an account:</h2>"
 
-    user_form = """
+    account_form = """
+    <h2>Create an account:</h2>
     <form action="/signup" method="post">
     <label>
         Username:
-        <input type="text" name="username" value = '""" + user_in + """' />
+        <input type="text" name="username" value="%s" />
     </label>
-    """
-
-    pass_form = """
+    %s
     <br>
     <label>
         Password:
         <input type="password" name="password" />
     </label>
-    """
-
-    verify_pass_form = """
+    %s
     <br>
     <label>
         Verify Password:
         <input type="password" name="verify_password" />
     </label>
-    """
-
-    email_form = """
+    %s
     <br>
     <label>
         Email (optional):
-        <input type="text" name="email" value = '""" + email_in + """' />
+        <input type="text" name="email" value="%s" />
     </label>
-    """
-
-    submit_button = """
+    %s
     <br>
     <input type="submit" value="Sign me up!"/>
-    """
+    """ % (user_in, bad_user, bad_pass, bad_pass_verify, email_in, bad_email)
 
-    user_form = user_form + bad_user
-    pass_form = pass_form + bad_pass
-    verify_pass_form = verify_pass_form + bad_pass_verify
-    email_form = email_form + bad_email
-    account_form = header + user_form + pass_form + verify_pass_form + email_form
-
-    content = page_header + account_form + submit_button + page_footer
+    content = page_header + account_form + page_footer
     return content
 
 class Index(webapp2.RequestHandler):
     """
        Handles requests coming to "/", builds form
     """
+
     def get(self):
+        #self.response.write("should be the first line")
         """ provides the HTML for the sign on """
         bad_user = ""
         bad_pass = ""
@@ -138,7 +126,6 @@ class Signup(webapp2.RequestHandler):
 
         # validate username
         good_username = valid_username(username_in)
-        self.response.write(good_username)
 
         if good_username:
             #sanitize username
