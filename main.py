@@ -43,59 +43,66 @@ page_footer = """
     </html>
     """
 
-error_bad_username = ""
-error_bad_password = ""
-error_password_mismatch = ""
-error_bad_email = ""
+def page_html(bad_user, bad_pass, bad_pass_verify, bad_email):
+    page_header = "<h2>Create an account:</h2>"
+
+    user_form = """
+    <form action="/signup" method="post">
+    <label>
+        Username:
+        <input type="text" name="username" />
+    </label>
+    """
+
+    pass_form = """
+    <br>
+    <label>
+        Password:
+        <input type="password" name="password" />
+    </label>
+    """
+
+    verify_pass_form = """
+    <br>
+    <label>
+        Verify Password:
+        <input type="password" name="verify_password" />
+    </label>
+    """
+
+    email_form = """
+    <br>
+    <label>
+        Email (optional):
+        <input type="text" name="email" />
+    </label>
+    """
+
+    submit_button = """
+    <br>
+    <input type="submit" value="Sign me up!"/>
+    """
+
+    user_form = user_form + bad_user
+    pass_form = pass_form + bad_pass
+    verify_pass_form = verify_pass_form + bad_pass_verify
+    email_form = email_form + bad_email
+    account_form = user_form + pass_form + verify_pass_form + email_form
+
+    content = page_header + account_form + submit_button + page_footer
+    return content
 
 class Index(webapp2.RequestHandler):
     """
        Handles requests coming to "/", builds form
     """
     def get(self):
-        page_header = "<h2>Create an account:</h2>"
-
-        user_form = """
-        <form action="/signup" method="post">
-        <label>
-            Username:
-            <input type="text" name="username" />
-        </label>
-        """
-
-        pass_form = """
-        <br>
-        <label>
-            Password:
-            <input type="password" name="password" />
-        </label>
-        """
-
-        verify_pass_form = """
-        <br>
-        <label>
-            Verify Password:
-            <input type="password" name="verify_password" />
-        </label>
-        """
-
-        email_form = """
-        <br>
-        <label>
-            Email (optional):
-            <input type="text" name="email" />
-        </label>
-        <br>
-        <input type="submit" value="Sign me up!"/>
-        """
-        account_form = user_form + pass_form + verify_pass_form + email_form
-
-        user_content = page_header + user_form + error_bad_username
-        pass_content = pass_form + error_bad_password
-        verify_pass_content = verify_pass_form + error_password_mismatch
-        email_content = email_form + error_bad_email + page_footer
-
-        content = user_content + pass_content + verify_pass_content + email_content
+        """ provides the HTML for the sign on """
+        bad_user = ""
+        bad_pass = ""
+        bad_pass_verify = ""
+        bad_email = ""
+        content = page_html(bad_user, bad_pass, bad_pass_verify, bad_email)
 
         self.response.write(content)
 
@@ -114,48 +121,52 @@ class Signup(webapp2.RequestHandler):
 
         # validate username
         good_username = valid_username(username_in)
+        self.response.write(good_username)
 
         if good_username:
             #sanitize username
             ok_username = cgi.escape(username_in, quote=True)
-            error_bad_username = ""
+            err_username = ""
         else:
-            error_bad_username = "<span class='error'>Invalid username</span>"
+            err_username = '<span style="color:red">Invalid username</span>'
 
         #validate password and compare against verify_password_in
         good_password = valid_password(password_in)
 
         if good_password:
             #make sure the passwords match
-            error_bad_password = ""
+            err_password = ""
             if password_in == verify_password_in:
                 #sanitize password
                 ok_password = cgi.escape(password_in,quote=True)
                 good_match = True
-                error_password_mismatch = ""
+                err_password_mismatch = ""
             else:
                 good_match = False
-                error_password_mismatch = """
-                "<span class='error'>Passwords did not match</span>"
+                err_password_mismatch = """
+                <span class='error'>Passwords did not match</span>
                 """
         else:
-            error_bad_password = "<span class='error'>Invalid password</span>"
+            err_password = "<span class='error'>Invalid password</span>"
+            err_password_mismatch = ""
 
         #validate email address
         good_email = valid_email(email_in)
 
-        if good_email:
+        if good_email or email_in == "" :
             #sanitize email
             ok_email = cgi.escape(email_in, quote=True)
-            error_bad_email = ""
+            err_email = ""
         else:
-            error_bad_email = "<span class='error'>Invalid username</span>"
+            err_email = "<span class='error'>Invalid email</span>"
 
         if good_username and good_password and good_match and good_email:
             welcome_text = "<h1>Welcome, " + ok_username + "!</h1>"
             self.response.write(welcome_text)
         else:
-            self.redirect("/")
+            content = page_html(err_username, err_password, err_password_mismatch, err_email)
+            self.response.write(content)
+            #self.redirect("/")
 
 
 class WelcomePage(webapp2.RequestHandler):
