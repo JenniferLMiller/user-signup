@@ -43,14 +43,21 @@ page_footer = """
     </html>
     """
 
-def page_html(bad_user, bad_pass, bad_pass_verify, bad_email):
-    page_header = "<h2>Create an account:</h2>"
+def page_html(
+    bad_user,
+    bad_pass,
+    bad_pass_verify,
+    bad_email,
+    user_in,
+    email_in
+    ):
+    header = "<h2>Create an account:</h2>"
 
     user_form = """
     <form action="/signup" method="post">
     <label>
         Username:
-        <input type="text" name="username" />
+        <input type="text" name="username" value = '""" + user_in + """' />
     </label>
     """
 
@@ -74,7 +81,7 @@ def page_html(bad_user, bad_pass, bad_pass_verify, bad_email):
     <br>
     <label>
         Email (optional):
-        <input type="text" name="email" />
+        <input type="text" name="email" value = '""" + email_in + """' />
     </label>
     """
 
@@ -87,7 +94,7 @@ def page_html(bad_user, bad_pass, bad_pass_verify, bad_email):
     pass_form = pass_form + bad_pass
     verify_pass_form = verify_pass_form + bad_pass_verify
     email_form = email_form + bad_email
-    account_form = user_form + pass_form + verify_pass_form + email_form
+    account_form = header + user_form + pass_form + verify_pass_form + email_form
 
     content = page_header + account_form + submit_button + page_footer
     return content
@@ -102,7 +109,17 @@ class Index(webapp2.RequestHandler):
         bad_pass = ""
         bad_pass_verify = ""
         bad_email = ""
-        content = page_html(bad_user, bad_pass, bad_pass_verify, bad_email)
+        user = ""
+        email = ""
+
+        content = page_html(
+        bad_user,
+        bad_pass,
+        bad_pass_verify,
+        bad_email,
+        user,
+        email
+        )
 
         self.response.write(content)
 
@@ -128,7 +145,7 @@ class Signup(webapp2.RequestHandler):
             ok_username = cgi.escape(username_in, quote=True)
             err_username = ""
         else:
-            err_username = '<span style="color:red">Invalid username</span>'
+            err_username = "<span  class='error'>Invalid username</span>"
 
         #validate password and compare against verify_password_in
         good_password = valid_password(password_in)
@@ -160,11 +177,21 @@ class Signup(webapp2.RequestHandler):
         else:
             err_email = "<span class='error'>Invalid email</span>"
 
-        if good_username and good_password and good_match and good_email:
-            welcome_text = "<h1>Welcome, " + ok_username + "!</h1>"
-            self.response.write(welcome_text)
+        if (good_username
+        and good_password
+        and good_match
+        and (good_email or email_in == "")):
+            #welcome_text = "<h1>Welcome, " + ok_username + "!</h1>"
+            self.redirect("/welcome?username=" + ok_username)
         else:
-            content = page_html(err_username, err_password, err_password_mismatch, err_email)
+            content = page_html(
+            err_username,
+            err_password,
+            err_password_mismatch,
+            err_email,
+            username_in,
+            email_in
+            )
             self.response.write(content)
             #self.redirect("/")
 
@@ -174,15 +201,16 @@ class WelcomePage(webapp2.RequestHandler):
        Handles requests coming to "/welcome", builds Welcome page
     """
     def get(self):
-        welcome_text = "<h1>Welcome, " + ok_username + "!</h1>"
-        self.response.write(welcome_text)
-
-#app = webapp2.WSGIApplication([
-#    ('/', Index),
-#    ('/signup', Signup),
-#    ('/welcome', WelcomePage)
+        username = self.request.get('username')
+        if valid_username(username):
+            welcome_text = "<h1>Welcome, " + username + "!</h1>"
+            self.response.write(welcome_text)
+        else:
+            self.redirect('/signup')
 
 app = webapp2.WSGIApplication([
     ('/', Index),
-    ('/signup', Signup)
+    ('/signup', Signup),
+    ('/welcome', WelcomePage)
+
 ], debug=True)
