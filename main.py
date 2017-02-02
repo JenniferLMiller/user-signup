@@ -55,32 +55,49 @@ def page_html(
     account_form = """
     <h2>Create an account:</h2>
     <form action="/signup" method="post">
-    <label>
-        Username:
-        <input type="text" name="username" value="%s" />
-    </label>
-    %s
-    <br>
-    <label>
-        Password:
-        <input type="password" name="password" />
-    </label>
-    %s
-    <br>
-    <label>
-        Verify Password:
-        <input type="password" name="verify_password" />
-    </label>
-    %s
-    <br>
-    <label>
-        Email (optional):
-        <input type="text" name="email" value="%s" />
-    </label>
-    %s
-    <br>
-    <input type="submit" value="Sign me up!"/>
-    """ % (user_in, bad_user, bad_pass, bad_pass_verify, email_in, bad_email)
+        <table>
+            <tbody>
+                <tr>
+                    <td class="label">
+                        Username:
+                    </td>
+                    <td>
+                        <input type="text" name="username" value="%s" />
+                    </td>
+                    <td class="error">%s</td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        Password:
+                    </td>
+                    <td>
+                        <input type="password" name="password" />
+                    </td>
+                    <td class="error">%s</td>
+                </tr>
+                <tr>
+                    <td class ="label">
+                        Verify Password:
+                    </td>
+                    <td>
+                        <input type="password" name="verify_password" />
+                    </td>
+                    <td class="error">%s</td>
+                </tr>
+                <tr>
+                    <td class ="label">
+                        Email (optional):
+                    </td>
+                    <td>
+                        <input type="text" name="email" value="%s" />
+                    </td>
+                    <td class="error">%s</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <input type="submit" value="Sign me up!"/>
+        """ % (user_in, bad_user, bad_pass, bad_pass_verify, email_in, bad_email)
 
     content = page_header + account_form + page_footer
     return content
@@ -91,8 +108,7 @@ class Index(webapp2.RequestHandler):
     """
 
     def get(self):
-        #self.response.write("should be the first line")
-        """ provides the HTML for the sign on """
+        """ provides the HTML for the sign up """
         bad_user = ""
         bad_pass = ""
         bad_pass_verify = ""
@@ -132,7 +148,7 @@ class Signup(webapp2.RequestHandler):
             ok_username = cgi.escape(username_in, quote=True)
             err_username = ""
         else:
-            err_username = "<span  class='error'>Invalid username</span>"
+            err_username = "Invalid username"
 
         #validate password and compare against verify_password_in
         good_password = valid_password(password_in)
@@ -147,11 +163,9 @@ class Signup(webapp2.RequestHandler):
                 err_password_mismatch = ""
             else:
                 good_match = False
-                err_password_mismatch = """
-                <span class='error'>Passwords did not match</span>
-                """
+                err_password_mismatch = "Passwords did not match"
         else:
-            err_password = "<span class='error'>Invalid password</span>"
+            err_password = "Invalid password"
             err_password_mismatch = ""
 
         #validate email address
@@ -162,7 +176,7 @@ class Signup(webapp2.RequestHandler):
             ok_email = cgi.escape(email_in, quote=True)
             err_email = ""
         else:
-            err_email = "<span class='error'>Invalid email</span>"
+            err_email = "Invalid email"
 
         if (good_username
         and good_password

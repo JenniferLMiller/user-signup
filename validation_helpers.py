@@ -15,7 +15,7 @@ def valid_password(password):
     return True
 
 def valid_email(email):
-    email_RE = re.compile(r"^[\S]+[\S]+.[\S]+$")
+    email_RE = re.compile(r"^[\S]+@[\S]+[.][\S]+$")
     checkemail = email_RE.match(email)
     if checkemail is None:
         return False
